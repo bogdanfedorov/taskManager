@@ -12,11 +12,13 @@ STATUSES := todo docs model tests code done
 tasks:
 	@if [ -s $(TASKS) ]; then \
 	  awk -v s="$(S)" -v q="$(Q)" 'BEGIN{q=tolower(q)} \
-	    { st=substr($$5,2,length($$5)-2); \
-	      txt=substr($$0,index($$0,$$5)+length($$5)+1); \
+	    { line=$$0; sub(/^- \[.\] /, "", line); \
+	      split(line, a, " "); \
+	      id=a[1]; st=substr(a[2],2,length(a[2])-2); \
+	      txt=substr(line, index(line,a[2])+length(a[2])+1); \
 	      if (s!="" && st!=s) next; \
-	      if (q!="" && index(tolower($$4" "txt),q)==0) next; \
-	      printf "%-6s %-6s %s\n", $$4, st, txt; n++ } \
+	      if (q!="" && index(tolower(id" "txt),q)==0) next; \
+	      printf "%-6s %-6s %s\n", id, st, txt; n++ } \
 	    END{ if(!n) print "no matches" }' $(TASKS); \
 	else echo "no tasks"; fi
 
